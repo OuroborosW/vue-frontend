@@ -21,7 +21,7 @@ FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 # 为80端口提供服务
-EXPOSE 80
+EXPOSE 8080
 
 # 当容器启动时，运行 nginx
 CMD ["nginx", "-g", "daemon off;"]
