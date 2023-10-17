@@ -1,27 +1,24 @@
-# 使用官方的 Node.js 作为基础镜像
-FROM node:16 as build-stage
+# 1. 使用 Node.js 镜像构建前端资源
+FROM node:16 AS build-stage
 
-# 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json，然后安装依赖项
+# 安装项目依赖
 COPY package*.json ./
 RUN npm install
 
-# 复制源代码和其他文件到工作目录
+# 复制并构建项目
 COPY . .
-
-# 构建应用
 RUN npm run build
 
-# 使用 nginx 容器为生产环境提供服务
+# 2. 使用 Nginx 镜像托管前端资源
 FROM nginx:stable-alpine as production-stage
 
-# 将从 build 阶段构建的文件复制到 nginx 容器的 appropriate 目录中
+# 将构建的文件从构建阶段复制到 Nginx
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# 为80端口提供服务
-EXPOSE 8080
+# 暴露 80 端口
+EXPOSE 80
 
-# 当容器启动时，运行 nginx
+# 用 Nginx 以默认配置启动
 CMD ["nginx", "-g", "daemon off;"]
